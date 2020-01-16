@@ -24,15 +24,19 @@ dependencies {
 	// spring amqp
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'
+
+	//rabbitmq java client
+	// https://mvnrepository.com/artifact/com.rabbitmq/amqp-client
+	compile group: 'com.rabbitmq', name: 'amqp-client', version: '5.8.0'
 	
 	//jeromq jms
 	// https://mvnrepository.com/artifact/org.zeromq/jeromq-jms
 	compile group: 'org.zeromq', name: 'jeromq-jms', version: '3.0.1-RELEASE'
 	
-	
-	//rabbitmq java client
-	// https://mvnrepository.com/artifact/com.rabbitmq/amqp-client
-	compile group: 'com.rabbitmq', name: 'amqp-client', version: '5.8.0'
+//	// jzmq
+//	// https://mvnrepository.com/artifact/org.zeromq/jzmq
+//	compile group: 'org.zeromq', name: 'jzmq', version: '3.1.0'
+
 }
 
 test {
