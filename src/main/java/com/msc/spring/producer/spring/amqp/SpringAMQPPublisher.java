@@ -8,6 +8,7 @@ package com.msc.spring.producer.spring.amqp;/***********************************
  *
  *************************************************************** */
 
+import com.msc.spring.producer.message.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class MessageProducer {
+public class SpringAMQPPublisher {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 

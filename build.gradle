@@ -13,14 +13,26 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	runtimeOnly 'mysql:mysql-connector-java'
+	
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
 
 	compile "org.springframework.boot:spring-boot-configuration-processor"
+	
+	// spring amqp
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'
+	
+	//jeromq jms
+	// https://mvnrepository.com/artifact/org.zeromq/jeromq-jms
+	compile group: 'org.zeromq', name: 'jeromq-jms', version: '3.0.1-RELEASE'
+	
+	
+	//rabbitmq java client
+	// https://mvnrepository.com/artifact/com.rabbitmq/amqp-client
+	compile group: 'com.rabbitmq', name: 'amqp-client', version: '5.8.0'
 }
 
 test {

@@ -1,4 +1,4 @@
-package com.msc.spring.producer.spring.amqp;/***************************************************************
+package com.msc.spring.producer.message;/***************************************************************
  * Copyright (c) 2020 Errigal Inc.
  *
  * This software is the confidential and proprietary information
