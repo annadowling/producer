@@ -12,8 +12,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.management.Notification;
-
 /**
  * Created by annadowling on 2020-01-15.
  */
@@ -26,7 +24,7 @@ public class MessageProducer {
     @Autowired
     RabbitMQProperties rabbitMQProperties;
 
-    public void sendMessage(Notification msg){
+    public void sendMessage(Message msg){
         System.out.println("Send msg = " + msg.toString());
         rabbitTemplate.convertAndSend(rabbitMQProperties.getExchangeName(), rabbitMQProperties.getRoutingKey(), msg);
     }
