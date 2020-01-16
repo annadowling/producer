@@ -21,6 +21,15 @@ public class RabbitMQProperties {
     private String queueName;
     private String exchangeName;
     private String routingKey;
+    private String host;
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
 
     public String getQueueName() {
         return queueName;
