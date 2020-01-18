@@ -10,33 +10,43 @@ package com.msc.spring.producer.jeromq.jms;/************************************
 
 import com.msc.spring.producer.message.Message;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.zeromq.ZMQ;
 
 /**
  * Created by annadowling on 2020-01-16.
  */
 
+@Component
 public class JEROMQPublisher {
 
     @Value("${zeromq.address}")
     private static String bindAddress;
 
-    public static void main(String[] args) throws Exception {
-        ZMQ.Context ctx = ZMQ.context(1);
+    @Value("${message.volume}")
+    private static int messageVolume;
 
-        ZMQ.Socket pub = ctx.socket(ZMQ.PUB);
+    @Value("${jeromq.enabled}")
+    private static boolean jeroMQEnabled;
 
-        pub.bind(bindAddress);
 
-        Message message = new Message("Request", "TEST Message");
-        sendMessage(message, pub);
+    public void configureJeroMQPublisherAndSendMessage() {
+        if (jeroMQEnabled) {
+            ZMQ.Context ctx = ZMQ.context(1);
 
-        pub.close();
-        ctx.close();
-    }
+            ZMQ.Socket publisher = ctx.socket(ZMQ.PUB);
+            publisher.bind(bindAddress);
 
-    public static void sendMessage(Message msg,  ZMQ.Socket publisher){
-        System.out.println("Sending Message = " + msg.toString());
-        publisher.send(msg.toString());
+            Message message = new Message();
+
+            int i = 0;
+            while (i < messageVolume) {
+                System.out.println("Sending Message = " + message.toString());
+                publisher.send(message.toString());
+                i++;
+            }
+            publisher.close();
+            ctx.close();
+        }
     }
 }

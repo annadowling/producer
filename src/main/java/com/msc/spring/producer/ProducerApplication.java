@@ -1,4 +1,4 @@
-package com.msc.spring.producer.spring.amqp;
+package com.msc.spring.producer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

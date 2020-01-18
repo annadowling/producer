@@ -9,11 +9,11 @@ package com.msc.spring.producer.java.client;/***********************************
  *************************************************************** */
 
 import com.msc.spring.producer.message.Message;
-import com.msc.spring.producer.spring.amqp.RabbitMQProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
@@ -21,29 +21,43 @@ import java.nio.charset.StandardCharsets;
  * Created by annadowling on 2020-01-16.
  */
 
+@Component
 public class RabbitMQPublisher {
 
-    @Autowired
-    private static RabbitMQProperties rabbitMQProperties;
+    @Value("${rabbitmq.queueName}")
+    private static String queueName;
 
-    public static void main(String[] argv) throws Exception {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(rabbitMQProperties.getHost());
+    @Value("${rabbitmq.host}")
+    private static String host;
 
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
-            channel.queueDeclare(rabbitMQProperties.getQueueName(), true, false, false, null);
+    @Value("${rabbitmq.exchangeName}")
+    private static String exchangeName;
 
-            Message message = new Message("Request", "TEST Message");
-            sendMessage(message, channel);
+    @Value("${message.volume}")
+    private static int messageVolume;
+
+    @Value("${rabbitmq.java.client.enabled}")
+    private static boolean rabbitJavaClientEnabled;
+
+    public void setUpClientAndSendMessage() throws Exception {
+        if (rabbitJavaClientEnabled) {
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setHost(host);
+
+            Message message = new Message();
+
+            try (Connection connection = factory.newConnection();
+                 Channel channel = connection.createChannel()) {
+                channel.queueDeclare(queueName, true, false, false, null);
+
+                int i = 0;
+                while (i < messageVolume) {
+                    String messageConversion = message.toString();
+                    System.out.println("Sending Message = " + messageConversion);
+                    channel.basicPublish(exchangeName, queueName, null, messageConversion.getBytes(StandardCharsets.UTF_8));
+                    i++;
+                }
+            }
         }
-    }
-
-    public static void sendMessage(Message message, Channel channel) throws Exception{
-        String messageConversion = message.toString();
-        System.out.println("Sending Message = " + messageConversion);
-        channel.basicPublish(rabbitMQProperties.getExchangeName(), rabbitMQProperties.getQueueName(), null, messageConversion.getBytes(StandardCharsets.UTF_8));
-
-
     }
 }

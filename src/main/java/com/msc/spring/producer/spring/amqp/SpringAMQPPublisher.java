@@ -9,8 +9,9 @@ package com.msc.spring.producer.spring.amqp;/***********************************
  *************************************************************** */
 
 import com.msc.spring.producer.message.Message;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,13 +21,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringAMQPPublisher {
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private AmqpTemplate rabbitTemplate;
 
-    @Autowired
-    RabbitMQProperties rabbitMQProperties;
+    @Value("${rabbitmq.exchangeName}")
+    private static String exchangeName;
 
-    public void sendMessage(Message msg){
-        System.out.println("Send msg = " + msg.toString());
-        rabbitTemplate.convertAndSend(rabbitMQProperties.getExchangeName(), rabbitMQProperties.getRoutingKey(), msg);
+    @Value("${rabbitmq.routingKey}")
+    private String routingKey;
+
+    @Value("${message.volume}")
+    private static int messageVolume;
+
+    @Value("${spring.amqp.enabled}")
+    private static boolean springAMQPEnabled;
+
+    public void sendMessage() {
+        if (springAMQPEnabled) {
+            int i = 0;
+
+            Message message = new Message();
+            while (i < messageVolume) {
+                System.out.println("Sending Message = " + message.toString());
+                rabbitTemplate.convertAndSend(exchangeName, routingKey, message);
+                i++;
+            }
+        }
     }
 }

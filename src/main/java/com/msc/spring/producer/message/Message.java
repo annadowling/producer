@@ -8,6 +8,8 @@ package com.msc.spring.producer.message;/***************************************
  *
  *************************************************************** */
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.io.Serializable;
 
 /**
@@ -16,12 +18,9 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
 
-    private String notificationType;
-    private String msg;
+    @Value("${message.exchangeName}")
+    private static String messageType;
 
-
-    public Message(String notificationType, String msg) {
-        this.notificationType = notificationType;
-        this.msg = msg;
-    }
+    @Value("${rabbitmq.exchangeName}")
+    private static String messageText;
 }
