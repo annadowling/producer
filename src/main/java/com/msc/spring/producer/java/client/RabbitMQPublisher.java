@@ -68,7 +68,7 @@ public class RabbitMQPublisher {
                 while (i < messageVolume) {
                     String messageConversion = message.toString();
                     System.out.println("Sending Message = " + messageConversion);
-                    channel.basicPublish(exchangeName, queueName, null, messageConversion.getBytes(StandardCharsets.UTF_8));
+                    channel.basicPublish(exchangeName, routingKey, null, messageConversion.getBytes(StandardCharsets.UTF_8));
                     i++;
                 }
             }catch(IOException e){
