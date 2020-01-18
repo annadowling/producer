@@ -9,9 +9,16 @@ package com.msc.spring.producer.spring.amqp;/***********************************
  *************************************************************** */
 
 import com.msc.spring.producer.message.Message;
+import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,11 +27,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SpringAMQPPublisher {
+
     @Autowired
-    private AmqpTemplate rabbitAMQPTemplate;
+    Message message;
 
     @Value("${rabbitmq.exchangeName}")
     private String exchangeName;
+
+    @Value("${rabbitmq.queueName}")
+    private String queueName;
 
     @Value("${rabbitmq.routingKey}")
     private String routingKey;
@@ -35,14 +46,18 @@ public class SpringAMQPPublisher {
     @Value("${spring.amqp.enabled}")
     private boolean springAMQPEnabled;
 
+    @Bean
     public void sendMessage() {
         if (springAMQPEnabled) {
-            int i = 0;
+            ConnectionFactory connectionFactory = new CachingConnectionFactory();
+            AmqpAdmin admin = new RabbitAdmin(connectionFactory);
+            admin.declareQueue(new Queue(queueName));
+            AmqpTemplate template = new RabbitTemplate(connectionFactory);
 
-            Message message = new Message();
+            int i = 0;
             while (i < messageVolume) {
                 System.out.println("Sending Message = " + message.toString());
-                rabbitAMQPTemplate.convertAndSend(exchangeName, routingKey, message);
+                template.convertAndSend(exchangeName, routingKey, message);
                 i++;
             }
         }

@@ -8,9 +8,8 @@ package com.msc.spring.producer.message;/***************************************
  *
  *************************************************************** */
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 
@@ -18,7 +17,7 @@ import java.io.Serializable;
  * Created by annadowling on 2020-01-16.
  */
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@messageText", scope = Message.class)
+@Component
 public class Message implements Serializable {
 
     @Value("${message.exchangeName}")

@@ -10,6 +10,7 @@ package com.msc.spring.producer.jeromq.jms;/************************************
 
 import com.msc.spring.producer.message.Message;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.zeromq.ZMQ;
 
@@ -30,6 +31,7 @@ public class JEROMQPublisher {
     private boolean jeroMQEnabled;
 
 
+    @Bean
     public void configureJeroMQPublisherAndSendMessage() {
         if (jeroMQEnabled) {
             ZMQ.Context ctx = ZMQ.context(1);
