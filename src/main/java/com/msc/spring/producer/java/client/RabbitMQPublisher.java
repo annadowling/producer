@@ -9,6 +9,7 @@ package com.msc.spring.producer.java.client;/***********************************
  *************************************************************** */
 
 import com.msc.spring.producer.message.Message;
+import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -46,6 +48,9 @@ public class RabbitMQPublisher {
     @Value("${rabbitmq.exchangeName}")
     private String exchangeName;
 
+    @Value("${rabbitmq.routingKey}")
+    private String routingKey;
+
     @Value("${message.volume}")
     private int messageVolume;
 
@@ -55,18 +60,9 @@ public class RabbitMQPublisher {
     @Bean
     public void setUpClientAndSendMessage() throws Exception {
         if (rabbitJavaClientEnabled) {
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost(host);
-            factory.setPassword(rabbitPassWord);
-            factory.setUsername(rabbitUserName);
-            factory.setPort(port);
-            factory.setVirtualHost(virtualHost);
-
-            Message message = new Message();
-
-            try (Connection connection = factory.newConnection();
-                 Channel channel = connection.createChannel()) {
-                channel.queueDeclare(queueName, true, false, false, null);
+            try{
+                Message message = new Message();
+                Channel channel = createChannelConnection();
 
                 int i = 0;
                 while (i < messageVolume) {
@@ -75,7 +71,29 @@ public class RabbitMQPublisher {
                     channel.basicPublish(exchangeName, queueName, null, messageConversion.getBytes(StandardCharsets.UTF_8));
                     i++;
                 }
+            }catch(IOException e){
+                System.out.println("IOException encountered = " + e.getLocalizedMessage());
             }
         }
+    }
+
+
+    Channel createChannelConnection() throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(host);
+        factory.setPassword(rabbitPassWord);
+        factory.setUsername(rabbitUserName);
+        factory.setPort(port);
+        factory.setVirtualHost(virtualHost);
+        Connection connection = factory.newConnection();
+
+        Channel channel = connection.createChannel();
+
+        channel.queueDeclare(queueName, true, false, false, null);
+        channel.exchangeDeclare(exchangeName, BuiltinExchangeType.DIRECT);
+        channel.queueBind(queueName, exchangeName, routingKey);
+
+        return channel;
+
     }
 }
