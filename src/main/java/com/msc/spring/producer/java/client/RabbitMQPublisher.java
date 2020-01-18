@@ -28,8 +28,20 @@ public class RabbitMQPublisher {
     @Value("${rabbitmq.queueName}")
     private String queueName;
 
-    @Value("${spring.rabbitmq.host}")
+    @Value("${rabbitmq.host}")
     private String host;
+
+    @Value("${rabbitmq.port}")
+    private Integer port;
+
+    @Value("${rabbitmq.username}")
+    private String rabbitUserName;
+
+    @Value("${rabbitmq.password}")
+    private String rabbitPassWord;
+
+    @Value("${rabbitmq.virtualhost}")
+    private String virtualHost;
 
     @Value("${rabbitmq.exchangeName}")
     private String exchangeName;
@@ -45,6 +57,10 @@ public class RabbitMQPublisher {
         if (rabbitJavaClientEnabled) {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost(host);
+            factory.setPassword(rabbitPassWord);
+            factory.setUsername(rabbitUserName);
+            factory.setPort(port);
+            factory.setVirtualHost(virtualHost);
 
             Message message = new Message();
 

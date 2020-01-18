@@ -20,9 +20,9 @@ import java.io.Serializable;
 @Component
 public class Message implements Serializable {
 
-    @Value("${message.exchangeName}")
+    @Value("${message.notificationType}")
     private String messageType;
 
-    @Value("${rabbitmq.exchangeName}")
+    @Value("message.text")
     private String messageText;
 }

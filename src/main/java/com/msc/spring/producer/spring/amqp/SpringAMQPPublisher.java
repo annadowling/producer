@@ -9,8 +9,8 @@ package com.msc.spring.producer.spring.amqp;/***********************************
  *************************************************************** */
 
 import com.msc.spring.producer.message.Message;
-import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -40,6 +40,21 @@ public class SpringAMQPPublisher {
     @Value("${rabbitmq.routingKey}")
     private String routingKey;
 
+    @Value("${rabbitmq.host}")
+    private String host;
+
+    @Value("${rabbitmq.port}")
+    private Integer port;
+
+    @Value("${rabbitmq.username}")
+    private String rabbitUserName;
+
+    @Value("${rabbitmq.password}")
+    private String rabbitPassWord;
+
+    @Value("${rabbitmq.virtualhost}")
+    private String virtualHost;
+
     @Value("${message.volume}")
     private int messageVolume;
 
@@ -49,10 +64,8 @@ public class SpringAMQPPublisher {
     @Bean
     public void sendMessage() {
         if (springAMQPEnabled) {
-            ConnectionFactory connectionFactory = new CachingConnectionFactory();
-            AmqpAdmin admin = new RabbitAdmin(connectionFactory);
-            admin.declareQueue(new Queue(queueName));
-            AmqpTemplate template = new RabbitTemplate(connectionFactory);
+            ConnectionFactory connectionFactory = returnConnection();
+            RabbitTemplate template = new RabbitTemplate(connectionFactory);
 
             int i = 0;
             while (i < messageVolume) {
@@ -61,5 +74,23 @@ public class SpringAMQPPublisher {
                 i++;
             }
         }
+    }
+
+    ConnectionFactory returnConnection(){
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(host);
+        connectionFactory.setUsername(rabbitUserName);
+        connectionFactory.setPassword(rabbitPassWord);
+        connectionFactory.setPort(port);
+        connectionFactory.setVirtualHost(virtualHost);
+
+        RabbitAdmin admin = new RabbitAdmin(connectionFactory);
+        DirectExchange topicExchange = new DirectExchange(exchangeName);
+        Binding binding = new Binding(queueName, Binding.DestinationType.QUEUE, exchangeName, routingKey, null);
+
+        admin.declareQueue(new Queue(queueName));
+        admin.declareExchange(topicExchange);
+        admin.declareBinding(binding);
+
+        return connectionFactory;
     }
 }
