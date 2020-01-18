@@ -25,19 +25,19 @@ import java.nio.charset.StandardCharsets;
 public class RabbitMQPublisher {
 
     @Value("${rabbitmq.queueName}")
-    private static String queueName;
+    private String queueName;
 
     @Value("${rabbitmq.host}")
-    private static String host;
+    private String host;
 
     @Value("${rabbitmq.exchangeName}")
-    private static String exchangeName;
+    private String exchangeName;
 
     @Value("${message.volume}")
-    private static int messageVolume;
+    private int messageVolume;
 
     @Value("${rabbitmq.java.client.enabled}")
-    private static boolean rabbitJavaClientEnabled;
+    private boolean rabbitJavaClientEnabled;
 
     public void setUpClientAndSendMessage() throws Exception {
         if (rabbitJavaClientEnabled) {

@@ -8,18 +8,18 @@ package com.msc.spring.producer.spring.amqp;/***********************************
  *
  *************************************************************** */
 
-import org.springframework.amqp.core.Queue;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Created by annadowling on 2020-01-15.
@@ -34,7 +34,7 @@ public class SpringAMQPConfig {
     private String host;
 
     @Value("${rabbitmq.exchangeName}")
-    private String exhangeName;
+    private String exchangeName;
 
     @Value("${rabbitmq.routingKey}")
     private String routingKey;
@@ -46,7 +46,7 @@ public class SpringAMQPConfig {
 
     @Bean
     DirectExchange exchange() {
-        return new DirectExchange(exhangeName);
+        return new DirectExchange(exchangeName);
     }
 
     @Bean
@@ -61,7 +61,7 @@ public class SpringAMQPConfig {
 
 
     @Bean
-    public AmqpTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+    public AmqpTemplate rabbitAMQPTemplate(ConnectionFactory connectionFactory) {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         return rabbitTemplate;

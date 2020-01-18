@@ -21,13 +21,13 @@ import org.zeromq.ZMQ;
 public class JEROMQPublisher {
 
     @Value("${zeromq.address}")
-    private static String bindAddress;
+    private String bindAddress;
 
     @Value("${message.volume}")
-    private static int messageVolume;
+    private int messageVolume;
 
     @Value("${jeromq.enabled}")
-    private static boolean jeroMQEnabled;
+    private boolean jeroMQEnabled;
 
 
     public void configureJeroMQPublisherAndSendMessage() {

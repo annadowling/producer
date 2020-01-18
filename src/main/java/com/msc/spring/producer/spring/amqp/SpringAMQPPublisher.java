@@ -21,19 +21,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringAMQPPublisher {
     @Autowired
-    private AmqpTemplate rabbitTemplate;
+    private AmqpTemplate rabbitAMQPTemplate;
 
     @Value("${rabbitmq.exchangeName}")
-    private static String exchangeName;
+    private String exchangeName;
 
     @Value("${rabbitmq.routingKey}")
     private String routingKey;
 
     @Value("${message.volume}")
-    private static int messageVolume;
+    private int messageVolume;
 
     @Value("${spring.amqp.enabled}")
-    private static boolean springAMQPEnabled;
+    private boolean springAMQPEnabled;
 
     public void sendMessage() {
         if (springAMQPEnabled) {
@@ -42,7 +42,7 @@ public class SpringAMQPPublisher {
             Message message = new Message();
             while (i < messageVolume) {
                 System.out.println("Sending Message = " + message.toString());
-                rabbitTemplate.convertAndSend(exchangeName, routingKey, message);
+                rabbitAMQPTemplate.convertAndSend(exchangeName, routingKey, message);
                 i++;
             }
         }
