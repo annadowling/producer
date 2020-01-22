@@ -8,6 +8,7 @@ package com.msc.spring.producer.java.client;/***********************************
  *
  *************************************************************** */
 
+import com.msc.spring.producer.interfaces.ProducerSetup;
 import com.msc.spring.producer.message.Message;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
  */
 
 @Component
-public class RabbitMQPublisher {
+public class RabbitMQPublisher implements ProducerSetup {
 
     @Value("${rabbitmq.queueName}")
     private String queueName;
@@ -57,12 +57,17 @@ public class RabbitMQPublisher {
     @Value("${rabbitmq.java.client.enabled}")
     private boolean rabbitJavaClientEnabled;
 
+    Channel channel;
+
+    final String errorMessage = "Exception encountered = ";
+
     @Bean
-    public void setUpClientAndSendMessage() throws Exception {
+    @Override
+    public void setUpProducerAndSendMessage() {
         if (rabbitJavaClientEnabled) {
-            try{
+            Channel channel = createChannelConnection();
+            try {
                 Message message = new Message();
-                Channel channel = createChannelConnection();
 
                 int i = 0;
                 while (i < messageVolume) {
@@ -71,29 +76,61 @@ public class RabbitMQPublisher {
                     channel.basicPublish(exchangeName, routingKey, null, messageConversion.getBytes(StandardCharsets.UTF_8));
                     i++;
                 }
-            }catch(IOException e){
-                System.out.println("IOException encountered = " + e.getLocalizedMessage());
+            } catch (Exception e) {
+                System.out.println(errorMessage + e.getLocalizedMessage());
+            } finally {
+                try {
+                    channel.close();
+                } catch (Exception e) {
+                    System.out.println(errorMessage + e.getLocalizedMessage());
+
+                }
             }
         }
     }
 
 
-    Channel createChannelConnection() throws Exception {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(host);
-        factory.setPassword(rabbitPassWord);
-        factory.setUsername(rabbitUserName);
-        factory.setPort(port);
-        factory.setVirtualHost(virtualHost);
-        Connection connection = factory.newConnection();
+    /**
+     * Channel to RabbitMQ server used for declaring architecture(queues, exchanges, bindings)
+     * and publishing messages.
+     *
+     * @return Channel
+     */
 
-        Channel channel = connection.createChannel();
+    Channel createChannelConnection() {
+        ConnectionFactory factory = createConnection();
+        try {
+            Connection connection = factory.newConnection();
 
-        channel.queueDeclare(queueName, true, false, false, null);
-        channel.exchangeDeclare(exchangeName, BuiltinExchangeType.DIRECT);
-        channel.queueBind(queueName, exchangeName, routingKey);
+            Channel channel = connection.createChannel();
+            channel.queueDeclare(queueName, false, false, false, null);
+            channel.exchangeDeclare(exchangeName, BuiltinExchangeType.DIRECT);
+            channel.queueBind(queueName, exchangeName, routingKey);
+
+        } catch (Exception e) {
+            System.out.println(errorMessage + e.getLocalizedMessage());
+        }
 
         return channel;
-
     }
+
+    /**
+     * Creates connection to RabbitMQ server using specific env variables
+     *
+     * @return ConnectionFactory
+     */
+    ConnectionFactory createConnection() {
+        ConnectionFactory factory = new ConnectionFactory();
+        try {
+            factory.setHost(host);
+            factory.setPassword(rabbitPassWord);
+            factory.setUsername(rabbitUserName);
+            factory.setPort(port);
+            factory.setVirtualHost(virtualHost);
+        } catch (Exception e) {
+            System.out.println(errorMessage + e.getLocalizedMessage());
+        }
+        return factory;
+    }
+
 }

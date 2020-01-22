@@ -8,6 +8,7 @@ package com.msc.spring.producer.jeromq.jms;/************************************
  *
  *************************************************************** */
 
+import com.msc.spring.producer.interfaces.ProducerSetup;
 import com.msc.spring.producer.message.Message;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,7 @@ import org.zeromq.ZMQ;
  */
 
 @Component
-public class JEROMQPublisher {
+public class JEROMQPublisher implements ProducerSetup {
 
     @Value("${zeromq.address}")
     private String bindAddress;
@@ -32,7 +33,8 @@ public class JEROMQPublisher {
 
 
     @Bean
-    public void configureJeroMQPublisherAndSendMessage() {
+    @Override
+    public void setUpProducerAndSendMessage() {
         if (jeroMQEnabled) {
             ZMQ.Context ctx = ZMQ.context(1);
 

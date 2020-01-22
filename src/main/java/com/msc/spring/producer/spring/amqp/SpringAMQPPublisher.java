@@ -8,6 +8,7 @@ package com.msc.spring.producer.spring.amqp;/***********************************
  *
  *************************************************************** */
 
+import com.msc.spring.producer.interfaces.ProducerSetup;
 import com.msc.spring.producer.message.Message;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
@@ -26,7 +27,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class SpringAMQPPublisher {
+public class SpringAMQPPublisher implements ProducerSetup {
 
     @Autowired
     Message message;
@@ -62,7 +63,8 @@ public class SpringAMQPPublisher {
     private boolean springAMQPEnabled;
 
     @Bean
-    public void sendMessage() {
+    @Override
+    public void setUpProducerAndSendMessage() {
         if (springAMQPEnabled) {
             ConnectionFactory connectionFactory = returnConnection();
             RabbitTemplate template = new RabbitTemplate(connectionFactory);
@@ -76,13 +78,27 @@ public class SpringAMQPPublisher {
         }
     }
 
-    ConnectionFactory returnConnection(){
+
+    /**
+     * Creates connection to RabbitMQ server using specific env variables
+     * @return CachingConnectionFactory
+     */
+    CachingConnectionFactory returnConnection(){
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory(host);
         connectionFactory.setUsername(rabbitUserName);
         connectionFactory.setPassword(rabbitPassWord);
         connectionFactory.setPort(port);
         connectionFactory.setVirtualHost(virtualHost);
 
+        declareRabbitArchitecture(connectionFactory);
+        return connectionFactory;
+    }
+
+    /**
+     * Used for declaring architecture(queues, exchanges, bindings)
+     * @param connectionFactory
+     */
+    void declareRabbitArchitecture(CachingConnectionFactory connectionFactory){
         RabbitAdmin admin = new RabbitAdmin(connectionFactory);
         DirectExchange topicExchange = new DirectExchange(exchangeName);
         Binding binding = new Binding(queueName, Binding.DestinationType.QUEUE, exchangeName, routingKey, null);
@@ -90,7 +106,5 @@ public class SpringAMQPPublisher {
         admin.declareQueue(new Queue(queueName));
         admin.declareExchange(topicExchange);
         admin.declareBinding(binding);
-
-        return connectionFactory;
     }
 }
