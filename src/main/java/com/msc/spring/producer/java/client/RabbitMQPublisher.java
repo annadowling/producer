@@ -8,13 +8,13 @@ package com.msc.spring.producer.java.client;/***********************************
  *
  *************************************************************** */
 
-import com.msc.spring.producer.interfaces.ProducerSetup;
 import com.msc.spring.producer.message.Message;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,8 @@ import java.nio.charset.StandardCharsets;
  */
 
 @Component
-public class RabbitMQPublisher implements ProducerSetup {
+@ConditionalOnProperty(prefix = "rabbitmq.java.client", name = "enabled", havingValue = "true")
+public class RabbitMQPublisher {
 
     @Value("${rabbitmq.queueName}")
     private String queueName;
@@ -62,8 +63,7 @@ public class RabbitMQPublisher implements ProducerSetup {
     final String errorMessage = "Exception encountered = ";
 
     @Bean
-    @Override
-    public void setUpProducerAndSendMessage() {
+    public void setUpRMQProducerAndSendMessage() {
         if (rabbitJavaClientEnabled) {
             Channel channel = createChannelConnection();
             try {

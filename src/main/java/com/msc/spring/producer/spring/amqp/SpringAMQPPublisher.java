@@ -8,7 +8,6 @@ package com.msc.spring.producer.spring.amqp;/***********************************
  *
  *************************************************************** */
 
-import com.msc.spring.producer.interfaces.ProducerSetup;
 import com.msc.spring.producer.message.Message;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
@@ -19,6 +18,7 @@ import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,8 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class SpringAMQPPublisher implements ProducerSetup {
+@ConditionalOnProperty(prefix = "spring.amqp", name = "enabled", havingValue = "true")
+public class SpringAMQPPublisher {
 
     @Autowired
     Message message;
@@ -63,8 +64,7 @@ public class SpringAMQPPublisher implements ProducerSetup {
     private boolean springAMQPEnabled;
 
     @Bean
-    @Override
-    public void setUpProducerAndSendMessage() {
+    public void setUpSpringProducerAndSendMessage() {
         if (springAMQPEnabled) {
             ConnectionFactory connectionFactory = returnConnection();
             RabbitTemplate template = new RabbitTemplate(connectionFactory);

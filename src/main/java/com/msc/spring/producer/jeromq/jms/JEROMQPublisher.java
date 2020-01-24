@@ -8,9 +8,9 @@ package com.msc.spring.producer.jeromq.jms;/************************************
  *
  *************************************************************** */
 
-import com.msc.spring.producer.interfaces.ProducerSetup;
 import com.msc.spring.producer.message.Message;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.zeromq.ZMQ;
@@ -20,7 +20,8 @@ import org.zeromq.ZMQ;
  */
 
 @Component
-public class JEROMQPublisher implements ProducerSetup {
+@ConditionalOnProperty(prefix = "jeromq", name = "enabled", havingValue = "true")
+public class JEROMQPublisher {
 
     @Value("${zeromq.address}")
     private String bindAddress;
@@ -33,8 +34,7 @@ public class JEROMQPublisher implements ProducerSetup {
 
 
     @Bean
-    @Override
-    public void setUpProducerAndSendMessage() {
+    public void setUpJMQProducerAndSendMessage() {
         if (jeroMQEnabled) {
             ZMQ.Context ctx = ZMQ.context(1);
 
