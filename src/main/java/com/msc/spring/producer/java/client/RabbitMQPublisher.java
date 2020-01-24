@@ -1,12 +1,4 @@
-package com.msc.spring.producer.java.client;/***************************************************************
- * Copyright (c) 2020 Errigal Inc.
- *
- * This software is the confidential and proprietary information
- * of Errigal, Inc.  You shall not disclose such confidential
- * information and shall use it only in accordance with the
- * license agreement you entered into with Errigal.
- *
- *************************************************************** */
+package com.msc.spring.producer.java.client;
 
 import com.msc.spring.producer.message.Message;
 import com.rabbitmq.client.BuiltinExchangeType;

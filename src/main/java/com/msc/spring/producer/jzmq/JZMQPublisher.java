@@ -1,20 +1,18 @@
-package com.msc.spring.producer.jeromq.jms;
+package com.msc.spring.producer.jzmq;
 
-import com.msc.spring.producer.message.Message;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.zeromq.ZMQ;
 
-
 /**
  * Created by annadowling on 2020-01-16.
  */
 
 @Component
-@ConditionalOnProperty(prefix = "jeromq", name = "enabled", havingValue = "true")
-public class JEROMQPublisher {
+@ConditionalOnProperty(prefix = "jzmq", name = "enabled", havingValue = "true")
+public class JZMQPublisher {
 
     @Value("${zeromq.address}")
     private String bindAddress;
@@ -22,14 +20,14 @@ public class JEROMQPublisher {
     @Value("${message.volume}")
     private int messageVolume;
 
-    @Value("${jeromq.enabled}")
-    private boolean jeroMQEnabled;
+    @Value("${jzmq.enabled}")
+    private boolean jzmqEnabled;
 
     final String errorMessage = "Exception encountered = ";
 
     @Bean
-    public void setUpJEROMQProducerAndSendMessage() {
-        if (jeroMQEnabled) {
+    public void setUpJZMQProducerAndSendMessage() {
+        if (jzmqEnabled) {
             try (ZMQ.Context context = ZMQ.context(1);
                  ZMQ.Socket publisher = context.socket(ZMQ.PUB);
             ) {
@@ -41,7 +39,7 @@ public class JEROMQPublisher {
                 for (int i = 1; i <= 10; i++) {
                     publisher.sendMore("B");
                     boolean isSent = publisher.send("X(" + System.currentTimeMillis() + "):" + i);
-                    System.out.println("JEROMQ Message was sent " + i + " , " + isSent);
+                    System.out.println("JZMQ Message was sent " + i + " , " + isSent);
                 }
                 publisher.close();
                 context.term();
