@@ -22,9 +22,6 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "spring.amqp", name = "enabled", havingValue = "true")
 public class SpringAMQPPublisher {
 
-    @Autowired
-    Message message;
-
     @Value("${rabbitmq.exchangeName}")
     private String exchangeName;
 
@@ -49,11 +46,12 @@ public class SpringAMQPPublisher {
     @Value("${rabbitmq.virtualhost}")
     private String virtualHost;
 
-    @Value("${message.volume}")
-    private int messageVolume;
-
     @Value("${spring.amqp.enabled}")
     private boolean springAMQPEnabled;
+
+    @Autowired
+    private Message message;
+
 
     @Bean
     public void setUpSpringProducerAndSendMessage() {
@@ -61,10 +59,12 @@ public class SpringAMQPPublisher {
             ConnectionFactory connectionFactory = returnConnection();
             RabbitTemplate template = new RabbitTemplate(connectionFactory);
 
+            String messageText = message.generateMessage();
+
             int i = 0;
-            while (i < messageVolume) {
-                System.out.println("Sending Message = " + message.toString());
-                template.convertAndSend(exchangeName, routingKey, message);
+            while (i < message.messageVolume) {
+                System.out.println("Sending SPRING AMQP Message = " + messageText);
+                template.convertAndSend(exchangeName, routingKey, messageText);
                 i++;
             }
         }

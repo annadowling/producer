@@ -5,6 +5,7 @@ import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -44,9 +45,6 @@ public class RabbitMQPublisher {
     @Value("${rabbitmq.routingKey}")
     private String routingKey;
 
-    @Value("${message.volume}")
-    private int messageVolume;
-
     @Value("${rabbitmq.java.client.enabled}")
     private boolean rabbitJavaClientEnabled;
 
@@ -54,18 +52,20 @@ public class RabbitMQPublisher {
 
     final String errorMessage = "Exception encountered = ";
 
+    @Autowired
+    private Message message;
+
     @Bean
     public void setUpRMQProducerAndSendMessage() {
         if (rabbitJavaClientEnabled) {
             Channel channel = createChannelConnection();
             try {
-                Message message = new Message();
 
                 int i = 0;
-                while (i < messageVolume) {
-                    String messageConversion = message.toString();
-                    System.out.println("Sending Message = " + messageConversion);
-                    channel.basicPublish(exchangeName, routingKey, null, messageConversion.getBytes(StandardCharsets.UTF_8));
+                while (i < message.messageVolume) {
+                    String messageText = message.generateMessage();
+                    System.out.println("Sending RABBITMQ Client Message = " + messageText);
+                    channel.basicPublish(exchangeName, routingKey, null, messageText.getBytes(StandardCharsets.UTF_8));
                     i++;
                 }
             } catch (Exception e) {

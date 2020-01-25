@@ -36,13 +36,6 @@ dependencies {
 	//jeromq jms
 	// https://mvnrepository.com/artifact/org.zeromq/jeromq-jms
 	compile group: 'org.zeromq', name: 'jeromq-jms', version: '3.0.1-RELEASE'
-
-	//com.msc.spring.producer.jzmq
-	// https://mvnrepository.com/artifact/org.zeromq/jzmq
-	compile group: 'org.zeromq', name: 'jzmq', version: '3.1.0'
-
-
-
 }
 
 test {
