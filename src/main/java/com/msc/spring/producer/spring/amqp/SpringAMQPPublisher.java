@@ -1,6 +1,6 @@
 package com.msc.spring.producer.spring.amqp;
 
-import com.msc.spring.producer.message.Message;
+import com.msc.spring.producer.message.MessageUtils;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 /**
  * Created by annadowling on 2020-01-15.
@@ -50,7 +52,7 @@ public class SpringAMQPPublisher {
     private boolean springAMQPEnabled;
 
     @Autowired
-    private Message message;
+    private MessageUtils messageUtils;
 
 
     @Bean
@@ -59,12 +61,13 @@ public class SpringAMQPPublisher {
             ConnectionFactory connectionFactory = returnConnection();
             RabbitTemplate template = new RabbitTemplate(connectionFactory);
 
-            String messageText = message.generateMessage();
+            String messageText = messageUtils.generateMessage();
 
             int i = 0;
-            while (i < message.messageVolume) {
+            while (i < messageUtils.messageVolume) {
+                Map<String, String> messageMap = messageUtils.formatMessage(messageText, "SPRING AMQP");
                 System.out.println("Sending SPRING AMQP Message = " + messageText);
-                template.convertAndSend(exchangeName, routingKey, messageText);
+                template.convertAndSend(exchangeName, routingKey, messageMap);
                 i++;
             }
         }
@@ -99,4 +102,5 @@ public class SpringAMQPPublisher {
         admin.declareExchange(topicExchange);
         admin.declareBinding(binding);
     }
+
 }

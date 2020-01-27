@@ -20,7 +20,11 @@ dependencies {
 	}
 
 	compile "org.springframework.boot:spring-boot-configuration-processor"
-	
+
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+
+
 	// spring amqp
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'

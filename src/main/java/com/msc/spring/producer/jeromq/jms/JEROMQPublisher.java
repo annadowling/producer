@@ -1,12 +1,14 @@
 package com.msc.spring.producer.jeromq.jms;
 
-import com.msc.spring.producer.message.Message;
+import com.msc.spring.producer.message.MessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.zeromq.ZMQ;
+
+import java.util.Map;
 
 
 /**
@@ -26,7 +28,7 @@ public class JEROMQPublisher {
     final String errorMessage = "Exception encountered = ";
 
     @Autowired
-    private Message message;
+    private MessageUtils messageUtils;
 
     @Bean
     public void setUpJEROMQProducerAndSendMessage() {
@@ -38,13 +40,15 @@ public class JEROMQPublisher {
                 System.out.println("Starting Publisher..");
                 publisher.setIdentity("B".getBytes());
                 // for testing setting sleep at 100ms to ensure started.
-                Integer messageVolume = message.messageVolume;
+                Integer messageVolume = messageUtils.messageVolume;
 
                 for (int i = 0; i <= messageVolume; i++) {
                     publisher.sendMore("B");
 
-                    String messageText = message.generateMessage();
-                    boolean isSent = publisher.send("( " + message.messageType + System.currentTimeMillis() + "):" + i + messageText);
+                    String messageText = messageUtils.generateMessage();
+                    Map<String, String> messageMap = messageUtils.formatMessage(messageText, "JEROMQ");
+
+                    boolean isSent = publisher.send("( " + messageUtils.messageType + System.currentTimeMillis() + "):" + i + messageMap);
                     System.out.println("JEROMQ Message was sent " + i + " , " + isSent);
                 }
                 publisher.close();

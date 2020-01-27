@@ -1,6 +1,6 @@
 package com.msc.spring.producer.java.client;
 
-import com.msc.spring.producer.message.Message;
+import com.msc.spring.producer.message.MessageUtils;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 /**
  * Created by annadowling on 2020-01-16.
@@ -53,7 +53,7 @@ public class RabbitMQPublisher {
     final String errorMessage = "Exception encountered = ";
 
     @Autowired
-    private Message message;
+    private MessageUtils messageUtils;
 
     @Bean
     public void setUpRMQProducerAndSendMessage() {
@@ -62,10 +62,13 @@ public class RabbitMQPublisher {
             try {
 
                 int i = 0;
-                while (i < message.messageVolume) {
-                    String messageText = message.generateMessage();
+                while (i < messageUtils.messageVolume) {
+                    String messageText = messageUtils.generateMessage();
+                    Map<String, String> messageMap = messageUtils.formatMessage(messageText, "RABBITMQ JAVA CLIENT");
+                    byte[] mapBytes = messageUtils.convertMapToBytes(messageMap);
+
                     System.out.println("Sending RABBITMQ Client Message = " + messageText);
-                    channel.basicPublish(exchangeName, routingKey, null, messageText.getBytes(StandardCharsets.UTF_8));
+                    channel.basicPublish(exchangeName, routingKey, null, mapBytes);
                     i++;
                 }
             } catch (Exception e) {
