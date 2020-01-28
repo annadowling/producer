@@ -66,6 +66,8 @@ public class SpringAMQPPublisher {
             int i = 0;
             while (i < messageUtils.messageVolume) {
                 Map<String, String> messageMap = messageUtils.formatMessage(messageText, "SPRING AMQP");
+                messageUtils.saveMessage(messageMap);
+
                 System.out.println("Sending SPRING AMQP Message = " + messageText);
                 template.convertAndSend(exchangeName, routingKey, messageMap);
                 i++;

@@ -47,6 +47,7 @@ public class JEROMQPublisher {
 
                     String messageText = messageUtils.generateMessage();
                     Map<String, String> messageMap = messageUtils.formatMessage(messageText, "JEROMQ");
+                    messageUtils.saveMessage(messageMap);
 
                     boolean isSent = publisher.send("( " + messageUtils.messageType + System.currentTimeMillis() + "):" + i + messageMap);
                     System.out.println("JEROMQ Message was sent " + i + " , " + isSent);
