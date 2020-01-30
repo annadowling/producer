@@ -7,11 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.sql.Date;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by annadowling on 2020-01-16.
@@ -30,7 +26,7 @@ public class MessageUtils {
     public Integer messageSizeBytes;
 
     @Autowired
-    MessageRepository repository;
+    MessageRepository messageRepository;
 
     /**
      * Generate Message with Configurable Byte Size for send
@@ -71,9 +67,9 @@ public class MessageUtils {
         message.setRequestType(messageMap.get("messageId"));
         message.setMessageVolume(messageVolume);
         message.setMessageSize(messageSizeBytes);
-        message.setSendTime(new Date(System.currentTimeMillis()));
+        message.setSendTime(new Date());
 
-        repository.save(message);
+        messageRepository.save(message);
     }
 
     /**

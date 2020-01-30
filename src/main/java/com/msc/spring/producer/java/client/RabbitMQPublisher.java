@@ -68,7 +68,7 @@ public class RabbitMQPublisher {
                     messageUtils.saveMessage(messageMap);
                     byte[] mapBytes = messageUtils.convertMapToBytes(messageMap);
 
-                    System.out.println("Sending RABBITMQ Client Message = " + messageText);
+                    System.out.println("Sending RABBITMQ Client Message " + i);
                     channel.basicPublish(exchangeName, routingKey, null, mapBytes);
                     i++;
                 }
@@ -97,8 +97,8 @@ public class RabbitMQPublisher {
         ConnectionFactory factory = createConnection();
         try {
             Connection connection = factory.newConnection();
+            channel = connection.createChannel();
 
-            Channel channel = connection.createChannel();
             channel.queueDeclare(queueName, false, false, false, null);
             channel.exchangeDeclare(exchangeName, BuiltinExchangeType.DIRECT);
             channel.queueBind(queueName, exchangeName, routingKey);

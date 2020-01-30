@@ -68,7 +68,7 @@ public class SpringAMQPPublisher {
                 Map<String, String> messageMap = messageUtils.formatMessage(messageText, "SPRING AMQP");
                 messageUtils.saveMessage(messageMap);
 
-                System.out.println("Sending SPRING AMQP Message = " + messageText);
+                System.out.println("Sending SPRING AMQP Message " + i );
                 template.convertAndSend(exchangeName, routingKey, messageMap);
                 i++;
             }
@@ -97,10 +97,10 @@ public class SpringAMQPPublisher {
      */
     void declareRabbitArchitecture(CachingConnectionFactory connectionFactory){
         RabbitAdmin admin = new RabbitAdmin(connectionFactory);
-        DirectExchange topicExchange = new DirectExchange(exchangeName);
+        DirectExchange topicExchange = new DirectExchange(exchangeName, false, false);
         Binding binding = new Binding(queueName, Binding.DestinationType.QUEUE, exchangeName, routingKey, null);
 
-        admin.declareQueue(new Queue(queueName));
+        admin.declareQueue(new Queue(queueName, false));
         admin.declareExchange(topicExchange);
         admin.declareBinding(binding);
     }

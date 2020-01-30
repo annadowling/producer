@@ -49,8 +49,10 @@ public class JEROMQPublisher {
                     Map<String, String> messageMap = messageUtils.formatMessage(messageText, "JEROMQ");
                     messageUtils.saveMessage(messageMap);
 
-                    boolean isSent = publisher.send("( " + messageUtils.messageType + System.currentTimeMillis() + "):" + i + messageMap);
-                    System.out.println("JEROMQ Message was sent " + i + " , " + isSent);
+                    byte[] mapBytes = messageUtils.convertMapToBytes(messageMap);
+
+                    System.out.println("Sending JEROMQ Message " + i);
+                    publisher.send(mapBytes);
                 }
                 publisher.close();
                 context.term();
