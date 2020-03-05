@@ -45,6 +45,9 @@ public class SpringAMQPPublisher {
     @Value("${rabbitmq.password}")
     private String rabbitPassWord;
 
+    @Value("${rabbitmq.durable}")
+    private boolean durableQueue;
+
     @Value("${rabbitmq.virtualhost}")
     private String virtualHost;
 
@@ -97,7 +100,7 @@ public class SpringAMQPPublisher {
      */
     void declareRabbitArchitecture(CachingConnectionFactory connectionFactory){
         RabbitAdmin admin = new RabbitAdmin(connectionFactory);
-        DirectExchange topicExchange = new DirectExchange(exchangeName, false, false);
+        DirectExchange topicExchange = new DirectExchange(exchangeName, durableQueue, false);
         Binding binding = new Binding(queueName, Binding.DestinationType.QUEUE, exchangeName, routingKey, null);
 
         admin.declareQueue(new Queue(queueName, false));
