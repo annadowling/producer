@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -54,6 +55,9 @@ public class SpringAMQPPublisher {
     @Value("${spring.amqp.enabled}")
     private boolean springAMQPEnabled;
 
+    @Value("${multi.thread.enabled}")
+    private boolean multiThreaded;
+
     @Autowired
     private MessageUtils messageUtils;
 
@@ -71,19 +75,29 @@ public class SpringAMQPPublisher {
                 Map<String, String> messageMap = messageUtils.formatMessage(messageText, "SPRING AMQP");
                 messageUtils.saveMessage(messageMap);
 
-                System.out.println("Sending SPRING AMQP Message " + i );
-                template.convertAndSend(exchangeName, routingKey, messageMap);
+                System.out.println("Sending SPRING AMQP Message " + i);
+                if (multiThreaded) {
+                    sendMessageMultiThread(template, exchangeName, routingKey, messageMap);
+                } else {
+                    template.convertAndSend(exchangeName, routingKey, messageMap);
+                }
                 i++;
             }
         }
     }
 
+    @Async
+    void sendMessageMultiThread(RabbitTemplate template, String exchangeName, String routingKey, Map<String, String> messageMap) {
+        template.convertAndSend(exchangeName, routingKey, messageMap);
+    }
+
 
     /**
      * Creates connection to RabbitMQ server using specific env variables
+     *
      * @return CachingConnectionFactory
      */
-    CachingConnectionFactory returnConnection(){
+    CachingConnectionFactory returnConnection() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory(host);
         connectionFactory.setUsername(rabbitUserName);
         connectionFactory.setPassword(rabbitPassWord);
@@ -96,9 +110,10 @@ public class SpringAMQPPublisher {
 
     /**
      * Used for declaring architecture(queues, exchanges, bindings)
+     *
      * @param connectionFactory
      */
-    void declareRabbitArchitecture(CachingConnectionFactory connectionFactory){
+    void declareRabbitArchitecture(CachingConnectionFactory connectionFactory) {
         RabbitAdmin admin = new RabbitAdmin(connectionFactory);
         DirectExchange topicExchange = new DirectExchange(exchangeName, durableQueue, false);
         Binding binding = new Binding(queueName, Binding.DestinationType.QUEUE, exchangeName, routingKey, null);

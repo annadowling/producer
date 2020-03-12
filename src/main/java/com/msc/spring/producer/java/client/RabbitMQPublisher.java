@@ -5,10 +5,12 @@ import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -51,6 +53,9 @@ public class RabbitMQPublisher {
     @Value("${rabbitmq.java.client.enabled}")
     private boolean rabbitJavaClientEnabled;
 
+    @Value("${multi.thread.enabled}")
+    private boolean multiThreaded;
+
     Channel channel;
 
     final String errorMessage = "Exception encountered = ";
@@ -72,7 +77,11 @@ public class RabbitMQPublisher {
                     byte[] mapBytes = messageUtils.convertMapToBytes(messageMap);
 
                     System.out.println("Sending RABBITMQ Client Message " + i);
-                    channel.basicPublish(exchangeName, routingKey, null, mapBytes);
+                    if (multiThreaded) {
+                        sendMessageMultiThread(channel, exchangeName, routingKey, mapBytes);
+                    } else {
+                        channel.basicPublish(exchangeName, routingKey, null, mapBytes);
+                    }
                     i++;
                 }
             } catch (Exception e) {
@@ -86,6 +95,11 @@ public class RabbitMQPublisher {
                 }
             }
         }
+    }
+
+    @Async
+    void sendMessageMultiThread(Channel channel, String exchangeName, String routingKey, byte[] mapBytes) throws Exception {
+        channel.basicPublish(exchangeName, routingKey, null, mapBytes);
     }
 
 

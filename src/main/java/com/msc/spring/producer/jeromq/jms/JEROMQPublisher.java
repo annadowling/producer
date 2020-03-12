@@ -1,10 +1,12 @@
 package com.msc.spring.producer.jeromq.jms;
 
 import com.msc.spring.producer.message.MessageUtils;
+import com.rabbitmq.client.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.zeromq.ZMQ;
 
@@ -24,6 +26,9 @@ public class JEROMQPublisher {
 
     @Value("${jeromq.enabled}")
     private boolean jeroMQEnabled;
+
+    @Value("${multi.thread.enabled}")
+    private boolean multiThreaded;
 
     final String errorMessage = "Exception encountered = ";
 
@@ -52,7 +57,11 @@ public class JEROMQPublisher {
                     byte[] mapBytes = messageUtils.convertMapToBytes(messageMap);
 
                     System.out.println("Sending JEROMQ Message " + i);
-                    publisher.send(mapBytes);
+                    if (multiThreaded) {
+                        sendMessageMultiThread(publisher, mapBytes);
+                    } else {
+                        publisher.send(mapBytes);
+                    }
                 }
                 publisher.close();
                 context.term();
@@ -61,5 +70,10 @@ public class JEROMQPublisher {
 
             }
         }
+    }
+
+    @Async
+    void sendMessageMultiThread(ZMQ.Socket publisher, byte[] mapBytes) throws Exception {
+        publisher.send(mapBytes);
     }
 }
