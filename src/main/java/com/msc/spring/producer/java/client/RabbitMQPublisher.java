@@ -69,7 +69,7 @@ public class RabbitMQPublisher {
             Channel channel = createChannelConnection();
             try {
 
-                int i = 0;
+                int i = 1;
                 while (i < messageUtils.messageVolume) {
                     String messageText = messageUtils.generateMessage();
                     Map<String, String> messageMap = messageUtils.formatMessage(messageText, "RABBITMQ JAVA CLIENT");
