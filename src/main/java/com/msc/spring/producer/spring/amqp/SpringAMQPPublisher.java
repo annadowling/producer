@@ -73,7 +73,7 @@ public class SpringAMQPPublisher {
             int i = 0;
             while (i < messageUtils.messageVolume) {
                 Map<String, String> messageMap = messageUtils.formatMessage(messageText, "SPRING AMQP");
-                messageUtils.saveMessage(messageMap);
+                messageUtils.saveMessage(messageMap, multiThreaded);
 
                 System.out.println("Sending SPRING AMQP Message " + i);
                 if (multiThreaded) {

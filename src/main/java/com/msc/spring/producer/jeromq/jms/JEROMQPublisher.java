@@ -52,7 +52,7 @@ public class JEROMQPublisher {
 
                     String messageText = messageUtils.generateMessage();
                     Map<String, String> messageMap = messageUtils.formatMessage(messageText, "JEROMQ");
-                    messageUtils.saveMessage(messageMap);
+                    messageUtils.saveMessage(messageMap, multiThreaded);
 
                     byte[] mapBytes = messageUtils.convertMapToBytes(messageMap);
 
