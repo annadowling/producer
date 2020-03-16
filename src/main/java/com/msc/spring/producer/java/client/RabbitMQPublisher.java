@@ -74,7 +74,7 @@ public class RabbitMQPublisher {
             try {
 
                 int i = 1;
-                while (i < messageUtils.messageVolume) {
+                while (i <= messageUtils.messageVolume) {
                     String messageText = messageUtils.generateMessage();
                     Map<String, String> messageMap = messageUtils.formatMessage(messageText, "RABBITMQ JAVA CLIENT");
                     messageUtils.saveMessage(messageMap, multiThreaded);
