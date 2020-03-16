@@ -5,6 +5,8 @@ import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,8 @@ import java.util.Map;
 @Component
 @ConditionalOnProperty(prefix = "rabbitmq.java.client", name = "enabled", havingValue = "true")
 public class RabbitMQPublisher {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQPublisher.class);
 
     @Value("${rabbitmq.queueName}")
     private String queueName;
@@ -76,7 +80,7 @@ public class RabbitMQPublisher {
                     messageUtils.saveMessage(messageMap, multiThreaded);
                     byte[] mapBytes = messageUtils.convertMapToBytes(messageMap);
 
-                    System.out.println("Sending RABBITMQ Client Message " + i);
+                    LOGGER.info("Sending RABBITMQ Client Message " + i);
                     if (multiThreaded) {
                         sendMessageMultiThread(channel, exchangeName, routingKey, mapBytes);
                     } else {
@@ -84,13 +88,14 @@ public class RabbitMQPublisher {
                     }
                     i++;
                 }
+                LOGGER.info("Completed Sending RABBITMQ Client Messages");
             } catch (Exception e) {
-                System.out.println(errorMessage + e.getLocalizedMessage());
+                LOGGER.info(errorMessage + e.getLocalizedMessage());
             } finally {
                 try {
                     channel.close();
                 } catch (Exception e) {
-                    System.out.println(errorMessage + e.getLocalizedMessage());
+                    LOGGER.info(errorMessage + e.getLocalizedMessage());
 
                 }
             }
@@ -121,7 +126,7 @@ public class RabbitMQPublisher {
             channel.queueBind(queueName, exchangeName, routingKey);
 
         } catch (Exception e) {
-            System.out.println(errorMessage + e.getLocalizedMessage());
+            LOGGER.info(errorMessage + e.getLocalizedMessage());
         }
 
         return channel;
@@ -141,7 +146,7 @@ public class RabbitMQPublisher {
             factory.setPort(port);
             factory.setVirtualHost(virtualHost);
         } catch (Exception e) {
-            System.out.println(errorMessage + e.getLocalizedMessage());
+            LOGGER.info(errorMessage + e.getLocalizedMessage());
         }
         return factory;
     }

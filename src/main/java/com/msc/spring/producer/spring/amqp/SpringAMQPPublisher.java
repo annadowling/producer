@@ -1,6 +1,9 @@
 package com.msc.spring.producer.spring.amqp;
 
+import com.msc.spring.producer.java.client.RabbitMQPublisher;
 import com.msc.spring.producer.message.MessageUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
@@ -24,6 +27,8 @@ import java.util.Map;
 @Component
 @ConditionalOnProperty(prefix = "spring.amqp", name = "enabled", havingValue = "true")
 public class SpringAMQPPublisher {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringAMQPPublisher.class);
 
     @Value("${rabbitmq.exchangeName}")
     private String exchangeName;
@@ -75,7 +80,7 @@ public class SpringAMQPPublisher {
                 Map<String, String> messageMap = messageUtils.formatMessage(messageText, "SPRING AMQP");
                 messageUtils.saveMessage(messageMap, multiThreaded);
 
-                System.out.println("Sending SPRING AMQP Message " + i);
+                LOGGER.info("Sending SPRING AMQP Message " + i);
                 if (multiThreaded) {
                     sendMessageMultiThread(template, exchangeName, routingKey, messageMap);
                 } else {
@@ -83,6 +88,7 @@ public class SpringAMQPPublisher {
                 }
                 i++;
             }
+            LOGGER.info("Completed Sending SPRING AMQP Messages");
         }
     }
 

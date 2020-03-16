@@ -2,6 +2,8 @@ package com.msc.spring.producer.jeromq.jms;
 
 import com.msc.spring.producer.message.MessageUtils;
 import com.rabbitmq.client.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,6 +22,8 @@ import java.util.Map;
 @Component
 @ConditionalOnProperty(prefix = "jeromq", name = "enabled", havingValue = "true")
 public class JEROMQPublisher {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JEROMQPublisher.class);
 
     @Value("${zeromq.address}")
     private String bindAddress;
@@ -42,7 +46,7 @@ public class JEROMQPublisher {
                  ZMQ.Socket publisher = context.socket(ZMQ.PUB);
             ) {
                 publisher.bind(bindAddress);
-                System.out.println("Starting Publisher..");
+                LOGGER.info("Starting Publisher..");
                 publisher.setIdentity("B".getBytes());
                 // for testing setting sleep at 100ms to ensure started.
                 Integer messageVolume = messageUtils.messageVolume;
@@ -56,17 +60,18 @@ public class JEROMQPublisher {
 
                     byte[] mapBytes = messageUtils.convertMapToBytes(messageMap);
 
-                    System.out.println("Sending JEROMQ Message " + i);
+                    LOGGER.info("Sending JEROMQ Message " + i);
                     if (multiThreaded) {
                         sendMessageMultiThread(publisher, mapBytes);
                     } else {
                         publisher.send(mapBytes);
                     }
+                    LOGGER.info("Completed Sending JEROMQ Messages");
                 }
                 publisher.close();
                 context.term();
             } catch (Exception e) {
-                System.out.println(errorMessage + e.getLocalizedMessage());
+                LOGGER.info(errorMessage + e.getLocalizedMessage());
 
             }
         }
