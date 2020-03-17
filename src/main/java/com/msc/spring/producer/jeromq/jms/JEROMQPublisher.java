@@ -48,7 +48,9 @@ public class JEROMQPublisher {
                 publisher.bind(bindAddress);
                 LOGGER.info("Starting Publisher..");
                 publisher.setIdentity("B".getBytes());
+
                 // for testing setting sleep at 100ms to ensure started.
+                Thread.sleep(100l);
                 Integer messageVolume = messageUtils.messageVolume;
 
                 for (int i = 1; i <= messageVolume; i++) {
